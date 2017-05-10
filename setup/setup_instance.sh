@@ -63,12 +63,10 @@ fi
 
 export instanceId=$(aws ec2 run-instances --image-id $ami --count 1 --instance-type $instanceType --key-name aws-key-$name --security-group-ids $securityGroupId --subnet-id $subnetId --associate-public-ip-address --block-device-mapping "[ { \"DeviceName\": \"/dev/sda1\", \"Ebs\": { \"VolumeSize\": 128, \"VolumeType\": \"gp2\" } } ]" --query 'Instances[0].InstanceId' --output text)
 aws ec2 create-tags --resources $instanceId --tags --tags Key=Name,Value=$name-gpu-machine
-export allocAddr=$(aws ec2 allocate-address --domain vpc --query 'AllocationId' --output text)
 
 echo Waiting for instance start...
 aws ec2 wait instance-running --instance-ids $instanceId
 sleep 10 # wait for ssh service to start running too
-export assocId=$(aws ec2 associate-address --instance-id $instanceId --allocation-id $allocAddr --query 'AssociationId' --output text)
 export instanceUrl=$(aws ec2 describe-instances --instance-ids $instanceId --query 'Reservations[0].Instances[0].PublicDnsName' --output text)
 #export ebsVolume=$(aws ec2 describe-instance-attribute --instance-id $instanceId --attribute  blockDeviceMapping  --query BlockDeviceMappings[0].Ebs.VolumeId --output text)
 
@@ -97,14 +95,10 @@ echo export name=$name >> $name-commands.txt
 echo export vpcId=$vpcId >> $name-commands.txt
 echo export internetGatewayId=$internetGatewayId >> $name-commands.txt
 echo export subnetId=$subnetId >> $name-commands.txt
-echo export allocAddr=$allocAddr >> $name-commands.txt
-echo export assocId=$assocId >> $name-commands.txt
 echo export routeTableAssoc=$routeTableAssoc >> $name-commands.txt
 
 # save delete commands for cleanup
 echo "#!/bin/bash" > $name-remove.sh # overwrite existing file
-echo aws ec2 disassociate-address --association-id $assocId >> $name-remove.sh
-echo aws ec2 release-address --allocation-id $allocAddr >> $name-remove.sh
 
 # volume gets deleted with the instance automatically
 echo aws ec2 terminate-instances --instance-ids $instanceId >> $name-remove.sh
