@@ -70,6 +70,9 @@ sleep 10 # wait for ssh service to start running too
 export instanceUrl=$(aws ec2 describe-instances --instance-ids $instanceId --query 'Reservations[0].Instances[0].PublicDnsName' --output text)
 #export ebsVolume=$(aws ec2 describe-instance-attribute --instance-id $instanceId --attribute  blockDeviceMapping  --query BlockDeviceMappings[0].Ebs.VolumeId --output text)
 
+echo Running appleby-post-install...
+./appleby-post-install.sh $instanceUrl && echo "Post-install done." || echo "Post-install failed."
+
 # reboot instance, because I was getting "Failed to initialize NVML: Driver/library version mismatch"
 # error when running the nvidia-smi command
 # see also http://forums.fast.ai/t/no-cuda-capable-device-is-detected/168/13
