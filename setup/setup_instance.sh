@@ -15,6 +15,7 @@ fi
 # settings
 export name="fast-ai"
 export cidr="0.0.0.0/0"
+export volumeSize=${volumeSize:-128}
 
 hash aws 2>/dev/null
 if [ $? -ne 0 ]; then
@@ -61,7 +62,7 @@ then
 	chmod 400 ~/.ssh/aws-key-$name.pem
 fi
 
-export instanceId=$(aws ec2 run-instances --image-id $ami --count 1 --instance-type $instanceType --key-name aws-key-$name --security-group-ids $securityGroupId --subnet-id $subnetId --associate-public-ip-address --block-device-mapping "[ { \"DeviceName\": \"/dev/sda1\", \"Ebs\": { \"VolumeSize\": 128, \"VolumeType\": \"gp2\" } } ]" --query 'Instances[0].InstanceId' --output text)
+export instanceId=$(aws ec2 run-instances --image-id $ami --count 1 --instance-type $instanceType --key-name aws-key-$name --security-group-ids $securityGroupId --subnet-id $subnetId --associate-public-ip-address --block-device-mapping "[ { \"DeviceName\": \"/dev/sda1\", \"Ebs\": { \"VolumeSize\": $volumeSize, \"VolumeType\": \"gp2\" } } ]" --query 'Instances[0].InstanceId' --output text)
 aws ec2 create-tags --resources $instanceId --tags --tags Key=Name,Value=$name-gpu-machine
 
 echo Waiting for instance start...
