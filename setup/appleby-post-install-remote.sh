@@ -46,4 +46,11 @@ jupyter notebook
 EOF
 chmod u+x run-nb.sh
 
+echo "  > installing kaggle-cli"
+pip install kaggle-cli
+kg config -g -u mappleby
+
+echo "  > installing unzip"
+sudo apt install unzip
+
 echo "  > remote setup finished."
