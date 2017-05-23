@@ -13,7 +13,7 @@ from keras.models import Sequential
 from keras.layers.core import Flatten, Dense, Dropout, Lambda
 from keras.layers.convolutional import Convolution2D, MaxPooling2D, ZeroPadding2D
 from keras.layers.pooling import GlobalAveragePooling2D
-from keras.optimizers import SGD, RMSprop, Adam
+from keras.optimizers import SGD, Adam
 from keras.preprocessing import image
 
 
@@ -103,11 +103,12 @@ class Vgg16BN():
         self.compile()
 
     def finetune(self, batches):
-        model = self.model
-        model.pop()
-        for layer in model.layers: layer.trainable=False
-        model.add(Dense(batches.nb_class, activation='softmax'))
-        self.compile()
+        self.ft(batches.nb_class)
+
+        classes = list(iter(batches.class_indices))
+        for c in batches.class_indices:
+            classes[batches.class_indices[c]] = c
+        self.classes = classes
 
 
     def compile(self, lr=0.001):
