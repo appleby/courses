@@ -47,10 +47,10 @@ EOF
 chmod u+x run-nb.sh
 
 echo "  > installing kaggle-cli"
-pip install kaggle-cli
-kg config -g -u mappleby
+/home/ubuntu/anaconda2/bin/pip install kaggle-cli > /dev/null 2>&1
+/home/ubuntu/anaconda2/bin/kg config -g -u mappleby > /dev/null 2>&1
 
 echo "  > installing unzip"
-sudo apt install unzip
+sudo apt install unzip > /dev/null 2>&1
 
 echo "  > remote setup finished."
