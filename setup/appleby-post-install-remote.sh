@@ -24,6 +24,10 @@ mv ~/.ssh/fastai_rsa ~/.ssh/id_rsa
 chmod 600 ~/.ssh/id_rsa
 chmod 600 ~/.ssh/aws-t2micro.pem
 
+echo "  > configuring git"
+git config --global user.name "Mike Appleby"
+git config --global user.email "mike@app.leby.org"
+
 echo "  > cloning appleby/fastai-courses"
 ssh-keyscan -H github.com >> ~/.ssh/known_hosts 2>/dev/null
 chmod 600 ~/.ssh/known_hosts
