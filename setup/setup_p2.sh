@@ -5,10 +5,10 @@
 # get the correct ami
 export region=$(aws configure get region)
 if [ $region = "us-west-2" ]; then
-   #export ami="ami-bc508adc" # Oregon
-   # Use AMI with smaller volume size of 30GB.
-   export ami="ami-9c54f4fc"
-   volumeSize=30
+   export ami="ami-bc508adc" # Oregon
+   # Use AMI with smaller volume size of 30GB. Deleted?
+   # export ami="ami-9c54f4fc"
+   # volumeSize=30
 elif [ $region = "eu-west-1" ]; then
    export ami="ami-b43d1ec7" # Ireland
 elif [ $region = "us-east-1" ]; then
