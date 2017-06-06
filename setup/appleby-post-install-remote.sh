@@ -55,6 +55,6 @@ echo "  > installing kaggle-cli"
 /home/ubuntu/anaconda2/bin/kg config -g -u mappleby > /dev/null 2>&1
 
 echo "  > installing unzip"
-sudo apt install unzip > /dev/null 2>&1
+sudo apt install -y unzip > /dev/null 2>&1
 
 echo "  > remote setup finished."
