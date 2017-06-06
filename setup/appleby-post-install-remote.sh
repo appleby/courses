@@ -46,7 +46,7 @@ ln -s "$jupyter_nb_startup_dir" ~/nbs
 cat > run-nb.sh <<EOF
 #!/bin/bash
 cd "$jupyter_nb_startup_dir"
-jupyter notebook
+nohup jupyter notebook > $HOME/nohup.out 2>&1 &
 EOF
 chmod u+x run-nb.sh
 
