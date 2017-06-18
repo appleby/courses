@@ -24,10 +24,6 @@ mv ~/.ssh/fastai_rsa ~/.ssh/id_rsa
 chmod 600 ~/.ssh/id_rsa
 chmod 600 ~/.ssh/aws-t2micro.pem
 
-echo "  > installing git & unzip"
-sudo apt-get update -y > /dev/null 2>&1
-sudo apt install -y git unzip > /dev/null 2>&1
-
 echo "  > configuring git"
 git config --global user.name "Mike Appleby"
 git config --global user.email "mike@app.leby.org"
@@ -57,5 +53,9 @@ chmod u+x run-nb.sh
 echo "  > installing kaggle-cli"
 /home/ubuntu/anaconda2/bin/pip install kaggle-cli > /dev/null 2>&1
 /home/ubuntu/anaconda2/bin/kg config -g -u mappleby > /dev/null 2>&1
+
+echo "  > installing unzip"
+sudo apt-get update -y > /dev/null 2>&1
+sudo apt install -y unzip > /dev/null 2>&1
 
 echo "  > remote setup finished."
