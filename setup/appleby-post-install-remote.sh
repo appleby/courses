@@ -6,55 +6,63 @@ jupyter_nb_config=~/.jupyter/jupyter_notebook_config.py
 certfile=~/.jupyter/notebook.pem
 keyfile=~/.jupyter/notebook.key
 
+exec 3>&1 4>&2 > ~/post-install.log 2>&1
+
+echo3() {
+    echo "$@" >&3
+}
+
 set -e
 
 rm -rf ~/git
 
-echo "  > setting up jupyter notebook"
+echo3 "  > setting up jupyter notebook"
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 	-subj "/C=US/ST=OR/L=Somewhere/O=Fastai/CN=$instanceUrl" \
-	-keyout "$keyfile" -out "$certfile" \
-	> /dev/null 2>&1
+	-keyout "$keyfile" -out "$certfile"
 sed -i -e "s/\(c.NotebookApp.password = u\)'\([^']*\)'/\1'$jupyter_nb_sha'/" "$jupyter_nb_config"
 echo "c.NotebookApp.certfile = u'$certfile'" >> "$jupyter_nb_config"
 echo "c.NotebookApp.keyfile = u'$keyfile'" >> "$jupyter_nb_config"
 
-echo "  > setting up ssh keys"
+echo3 "  > setting up ssh keys"
 mv ~/.ssh/fastai_rsa ~/.ssh/id_rsa
 chmod 600 ~/.ssh/id_rsa
 chmod 600 ~/.ssh/aws-t2micro.pem
 
-echo "  > configuring git"
+echo3 "  > configuring git"
 git config --global user.name "Mike Appleby"
 git config --global user.email "mike@app.leby.org"
 
-echo "  > cloning appleby/fastai-courses"
-ssh-keyscan -H github.com >> ~/.ssh/known_hosts 2>/dev/null
+echo3 "  > cloning appleby/fastai-courses"
+ssh-keyscan -H github.com >> ~/.ssh/known_hosts
 chmod 600 ~/.ssh/known_hosts
-git clone git@github.com:appleby/fastai-courses.git > /dev/null 2>&1
+git clone git@github.com:appleby/fastai-courses.git
 
-echo "  > copying data from t2micro"
+echo3 "  > copying data from t2micro"
 t2micro=ec2-52-88-41-54.us-west-2.compute.amazonaws.com
 jupyter_nb_startup_dir=fastai-courses/deeplearning1/nbs
-ssh-keyscan -H "$t2micro" >> ~/.ssh/known_hosts 2>/dev/null
-scp -i ~/.ssh/aws-t2micro.pem "ec2-user@$t2micro:data.tgz" /dev/stdout 2>/dev/null \
-    | tar -C "$jupyter_nb_startup_dir" -xzf -
+data_tgz=data.tgz
+ssh-keyscan -H "$t2micro" >> ~/.ssh/known_hosts
+scp -i ~/.ssh/aws-t2micro.pem "ec2-user@$t2micro:$data_tgz" "$data_tgz"
+tar -C "$jupyter_nb_startup_dir" -xzf "$data_tgz"
+rm "$data_tgz"
 
-echo "  > creating nbs symlink and run-nb.sh"
+echo3 "  > creating nbs symlink and run-nb.sh"
 rm -rf ~/nbs
 ln -s "$jupyter_nb_startup_dir" ~/nbs
 cat > run-nb.sh <<EOF
 #!/bin/bash
 cd "$jupyter_nb_startup_dir"
-jupyter notebook
+nohup jupyter notebook > $HOME/nohup.out 2>&1 &
 EOF
 chmod u+x run-nb.sh
 
-echo "  > installing kaggle-cli"
-/home/ubuntu/anaconda2/bin/pip install kaggle-cli > /dev/null 2>&1
-/home/ubuntu/anaconda2/bin/kg config -g -u mappleby > /dev/null 2>&1
+echo3 "  > installing kaggle-cli"
+/home/ubuntu/anaconda2/bin/pip install kaggle-cli
+/home/ubuntu/anaconda2/bin/kg config -g -u mappleby
 
-echo "  > installing unzip"
-sudo apt install unzip > /dev/null 2>&1
+echo3 "  > installing unzip"
+sudo apt-get update -y
+sudo apt install -y unzip
 
-echo "  > remote setup finished."
+echo3 "  > remote setup finished."
